@@ -651,23 +651,24 @@ elif page == "Live Faculty Panel":
         ].iloc[0]
 
         # Get all registered students
+                # Get only students enrolled in this session's subject
 
-        # Get only students enrolled in this session's subject
+                # Get only students enrolled in this session's subject
 
-students_df = pd.read_sql_query(
-    """
-    SELECT
-        s.student_id,
-        s.student_name
-    FROM student_subjects ss
-    JOIN students s
-        ON ss.student_id = s.student_id
-    WHERE ss.subject = ?
-    ORDER BY s.student_name
-    """,
-    conn,
-    params=(session_info["subject"].strip().upper(),)
-)
+        students_df = pd.read_sql_query(
+            """
+            SELECT
+                s.student_id,
+                s.student_name
+            FROM student_subjects ss
+            JOIN students s
+                ON ss.student_id = s.student_id
+            WHERE ss.subject = ?
+            ORDER BY s.student_name
+            """,
+            conn,
+            params=(session_info["subject"].strip().upper(),)
+        )
 
         # Get attendance for selected session
 
@@ -690,25 +691,72 @@ students_df = pd.read_sql_query(
 
         total = len(students_df)
 
-present_ids = set(
-    present_df.loc[
-        present_df["status"] == "Present",
-        "student_id"
-    ]
-)
+        present_ids = set(
+            present_df.loc[
+                present_df["status"] == "Present",
+                "student_id"
+            ]
+        )
 
-eligible_ids = set(students_df["student_id"])
+        eligible_ids = set(students_df["student_id"])
 
-present = len(present_ids.intersection(eligible_ids))
+        # Get only students enrolled in this session's subject
 
-absent = total - present
+        # Get only students enrolled in this session's subject
+
+        students_df = pd.read_sql_query(
+            """
+            SELECT
+                s.student_id,
+                s.student_name
+            FROM student_subjects ss
+            JOIN students s
+                ON ss.student_id = s.student_id
+            WHERE ss.subject = ?
+            ORDER BY s.student_name
+            """,
+            conn,
+            params=(session_info["subject"].strip().upper(),)
+        )
+
+        # Get attendance for selected session
+
+        present_df = pd.read_sql_query(
+            """
+            SELECT
+                s.student_id,
+                s.student_name,
+                sa.status
+            FROM session_attendance sa
+            JOIN students s
+                ON sa.student_id = s.student_id
+            WHERE sa.session_id = ?
+            """,
+            conn,
+            params=(int(selected_session),)
+        )
+
+        conn.close()
+
+        total = len(students_df)
+
+        present_ids = set(
+            present_df.loc[
+                present_df["status"] == "Present",
+                "student_id"
+            ]
+        )
+
+        eligible_ids = set(students_df["student_id"])
+
+        present = len(present_ids.intersection(eligible_ids))
+
+        absent = total - present
 
         percentage = (
             (present / total) * 100
             if total > 0 else 0
         )
-
-        st.markdown("---")
 
         st.subheader(
             f"Subject: {session_info['subject']}"
