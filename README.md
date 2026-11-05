@@ -159,6 +159,12 @@ This project is intended for academic and demonstration purposes. Real-world dep
 * Advanced attendance analytics and reporting.
 * Deployment on a cloud platform.
 
+## Screenshots
+### Student Enrollment Management
+
+![Student Enrollment](screenshots/student-enrollment.png)
+
+
 ## Project Status
 
 **Development in Progress**
